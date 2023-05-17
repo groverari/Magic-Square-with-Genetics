@@ -63,8 +63,7 @@ def selection(population, elite_size, square_size, mutation_rate):
     return offspring
 
 # Solve the magic square problem using a genetic algorithm
-def solve_magic_square(square_size, num_generations, elite_percent, mutation_rate):
-    population_size = 100
+def solve_magic_square(square_size, population_size, num_generations, elite_percent, mutation_rate):
     population = generate_population(population_size, square_size)
     generation = 0
     best_individual = min(
