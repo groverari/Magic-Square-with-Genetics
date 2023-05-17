@@ -4,7 +4,7 @@ import random
 # Constants
 MUTATION_RATE = 0.1
 ELITE_PERCENT = 0.1
-NUM_GENERATIONS = 200
+NUM_GENERATIONS = 2000
 
 # Generate initial population
 
@@ -87,27 +87,34 @@ def solve_magic_square(square_size):
     best_individual = min(
         population, key=lambda x: calculate_fitness(x, square_size))
 
-    while (calculate_fitness(best_individual, square_size) > 0):
+    # stops loop at 20,000 generations or when the solution is found
+    while (calculate_fitness(best_individual, square_size) > 0 and generation < NUM_GENERATIONS):
         population = selection(population, ELITE_PERCENT, square_size)
 
         # Display the best individual in each generation
         best_individual = min(
             population, key=lambda x: calculate_fitness(x, square_size))
-
+        """
         print(
             f"Generation {generation+1}: Best Fitness = {calculate_fitness(best_individual, square_size)}")
         print(np.array(best_individual).reshape((square_size, square_size)))
         print()
-        generation += 10
+        """
+        generation += 1
 
     best_individual = min(
         population, key=lambda x: calculate_fitness(x, square_size))
-    return np.array(best_individual).reshape((square_size, square_size))
+
+    # return np.array(best_individual).reshape((square_size, square_size))
+    return generation
 
 
+"""
+THIS CODE RUNS THE MAGIC SQUARE IT IS COMMENTED OUT BECAUSE THE DATA FILE IS RUNNING THE FUNCTIONS
 # Get the size of the square from the user
 square_size = int(input("Enter the size of the square: "))
 
 # Run the algorithm
 best_solution = solve_magic_square(square_size)
 print("Final Solution: \n", best_solution)
+"""
