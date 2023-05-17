@@ -1,6 +1,7 @@
 from magic_square import solve_magic_square
 
 # Constants
+POPULATION_SIZE = 100
 MUTATION_RATE = 0.1
 ELITE_PERCENT = 0.1
 NUM_GENERATIONS = 2000
@@ -17,7 +18,7 @@ for magic_square_size in range(MINIMUM_MAGIC_SQUARE_SIZE, MAXIMUM_MAGIC_SQUARE_S
     for attempt_index in range(MAX_ATTEMPTS):
         generations[attempt_index] = []
 
-        generation = solve_magic_square(magic_square_size, NUM_GENERATIONS, ELITE_PERCENT, MUTATION_RATE)
+        generation = solve_magic_square(square_size=magic_square_size, population_size=POPULATION_SIZE, num_generations=NUM_GENERATIONS, elite_percent=ELITE_PERCENT, mutation_rate=MUTATION_RATE)
         if generation < NUM_GENERATIONS:
             print("Solution attempt " + str(attempt_index + 1) + " solved the magic square in " + str(generation) + " generations")
         else:
