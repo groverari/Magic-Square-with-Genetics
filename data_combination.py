@@ -21,15 +21,14 @@ MAXIMUM_MAGIC_SQUARE_SIZE = 10
 
 MAX_ATTEMPTS = 3
 
-# CROSSOVER_METHOD = CrossoverMethod.FITNESS_PERCENTAGE
-# CROSSOVER_METHOD = CrossoverMethod.SINGLE_CROSSOVER_POINT
-# CROSSOVER_METHOD = CrossoverMethod.SINGLE_CROSSOVER_POINT_2
-# CROSSOVER_METHOD = CrossoverMethod.DOUBLE_CROSSOVER_POINT
-# CROSSOVER_METHOD = CrossoverMethod.DOUBLE_CROSSOVER_POINT_PERCENTAGE
-CROSSOVER_METHOD = CrossoverMethod.UNIFORM_CROSSOVER
+CROSSOVER_METHOD = CrossoverMethod.SEQUENTIAL_SEGMENT_CROSSOVER
+
+# Determines whether children should be validated for having one of every value from 1 to the length of the magic square.
+# This is somewhat expensive, so it should only be done when a new CrossoverMethod is added.
+VALIDATE_CHILDREN = False
 
 output_to_csv = True
-generate_test_cases = False
+generate_test_cases = True
 
 def to_titlecase(string : str):
     return string.replace("_", " ").title().strip()
@@ -47,14 +46,14 @@ class MagicSquareTestCase:
 
 # Contains all of the test cases to be ran by the program.
 magic_square_test_cases : List[MagicSquareTestCase] = [
-    MagicSquareTestCase(population_size=10, square_size=3, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
-    MagicSquareTestCase(population_size=10, square_size=10, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
+    # MagicSquareTestCase(population_size=10, square_size=3, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
+    # MagicSquareTestCase(population_size=10, square_size=10, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
 
-    MagicSquareTestCase(population_size=100, square_size=3, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
-    MagicSquareTestCase(population_size=100, square_size=10, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
+    # MagicSquareTestCase(population_size=100, square_size=3, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
+    # MagicSquareTestCase(population_size=100, square_size=10, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
 
-    MagicSquareTestCase(population_size=100, square_size=3, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
-    MagicSquareTestCase(population_size=100, square_size=10, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
+    # MagicSquareTestCase(population_size=100, square_size=3, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
+    # MagicSquareTestCase(population_size=100, square_size=10, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
 ]
 
 # If we need to generate the test cases, we append the above list with the permutations of the various constant parameters at the top of the file.
@@ -80,8 +79,7 @@ if generate_test_cases:
     print()
 
     for magic_square_size in range(MINIMUM_MAGIC_SQUARE_SIZE, MAXIMUM_MAGIC_SQUARE_SIZE + 1):
-        for attempt_index in range(MAX_ATTEMPTS):
-            magic_square_test_cases.append(MagicSquareTestCase(population_size=POPULATION_SIZE, square_size=magic_square_size, mutation_rate=MUTATION_RATE, elite_percent=ELITE_PERCENT, crossover_method=CROSSOVER_METHOD))
+        magic_square_test_cases.append(MagicSquareTestCase(population_size=POPULATION_SIZE, square_size=magic_square_size, mutation_rate=MUTATION_RATE, elite_percent=ELITE_PERCENT, crossover_method=CROSSOVER_METHOD))
 
 csv_lines : List[str] = []
 
@@ -95,7 +93,7 @@ for magic_square_test_case in magic_square_test_cases:
     for attempt_index in range(MAX_ATTEMPTS):
         # Solve for the magic square with the parameters of this test case, recording the time it took to execute the function.
         pre_time = time.perf_counter_ns()
-        generation = solve_magic_square(square_size=magic_square_test_case.square_size, population_size=magic_square_test_case.population_size, num_generations=NUM_GENERATIONS, elite_percent=magic_square_test_case.elite_percent, mutation_rate=magic_square_test_case.mutation_rate, crossover_method=magic_square_test_case.crossover_method)
+        generation = solve_magic_square(square_size=magic_square_test_case.square_size, population_size=magic_square_test_case.population_size, num_generations=NUM_GENERATIONS, elite_percent=magic_square_test_case.elite_percent, mutation_rate=magic_square_test_case.mutation_rate, crossover_method=magic_square_test_case.crossover_method, validate_children=VALIDATE_CHILDREN)
         post_time = time.perf_counter_ns()
 
         # Check that the generations is less than the number of generations. If it isn't, then we didn't get a valid generation. Only append to the generation list when a valid value was returned from the solver.
