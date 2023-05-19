@@ -3,14 +3,15 @@ import statistics
 import time
 import numpy
 from typing import List
-from magic_square import solve_magic_square, CrossoverMethod
+from magic_square import solve_magic_square
+from crossover import CrossoverMethod
 
 # Fix the seed in place for both Python and numpy.
 random.seed(0)
 numpy.random.seed(0)
 
 # Constants
-POPULATION_SIZE = 100
+POPULATION_SIZE = 200
 MUTATION_RATE = 0.5
 ELITE_PERCENT = 0.8
 NUM_GENERATIONS = 10000
@@ -21,14 +22,30 @@ MAXIMUM_MAGIC_SQUARE_SIZE = 10
 
 MAX_ATTEMPTS = 3
 
-CROSSOVER_METHOD = CrossoverMethod.SEQUENTIAL_SEGMENT_CROSSOVER
+CROSSOVER_METHOD = CrossoverMethod.SINGLE_CROSSOVER_POINT
+# CROSSOVER_METHOD = CrossoverMethod.SINGLE_CROSSOVER_POINT_PERCENTAGE
+
+# CROSSOVER_METHOD = CrossoverMethod.SEQUENTIAL_SEGMENT_CROSSOVER
+# CROSSOVER_METHOD = CrossoverMethod.SEQUENTIAL_SEGMENT_CROSSOVER_PERCENTAGE
+
+# CROSSOVER_METHOD = CrossoverMethod.RANDOM_SEGMENT_CROSSOVER
+# CROSSOVER_METHOD = CrossoverMethod.RANDOM_SEGMENT_CROSSOVER_PERCENTAGE
+
+# CROSSOVER_METHOD = CrossoverMethod.ORDER_CROSSOVER
+
+# CROSSOVER_METHOD = CrossoverMethod.VOTING_RECOMBINATION
+
+# CROSSOVER_METHOD = CrossoverMethod.ALTERNATING_POSITION_CROSSOVER
+
+# Will choose a random crossover method each time.
+# CROSSOVER_METHOD = None
 
 # Determines whether children should be validated for having one of every value from 1 to the length of the magic square.
 # This is somewhat expensive, so it should only be done when a new CrossoverMethod is added.
-VALIDATE_CHILDREN = False
+VALIDATE_CHILDREN = True
 
 output_to_csv = True
-generate_test_cases = True
+generate_test_cases = False
 
 def to_titlecase(string : str):
     return string.replace("_", " ").title().strip()
@@ -46,14 +63,33 @@ class MagicSquareTestCase:
 
 # Contains all of the test cases to be ran by the program.
 magic_square_test_cases : List[MagicSquareTestCase] = [
-    # MagicSquareTestCase(population_size=10, square_size=3, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
-    # MagicSquareTestCase(population_size=10, square_size=10, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
+    MagicSquareTestCase(population_size=10, square_size=3, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.SINGLE_CROSSOVER_POINT_PERCENTAGE),
+    MagicSquareTestCase(population_size=10, square_size=5, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.SINGLE_CROSSOVER_POINT_PERCENTAGE),
+    MagicSquareTestCase(population_size=10, square_size=10, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.SINGLE_CROSSOVER_POINT_PERCENTAGE),
 
-    # MagicSquareTestCase(population_size=100, square_size=3, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
-    # MagicSquareTestCase(population_size=100, square_size=10, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
+    # MagicSquareTestCase(population_size=1000, square_size=3, mutation_rate=0.4, elite_percent=0.2, crossover_method=CrossoverMethod.SINGLE_CROSSOVER_POINT),
+    # MagicSquareTestCase(population_size=1000, square_size=4, mutation_rate=0.4, elite_percent=0.2, crossover_method=CrossoverMethod.SINGLE_CROSSOVER_POINT),
+    # MagicSquareTestCase(population_size=1000, square_size=5, mutation_rate=0.4, elite_percent=0.2, crossover_method=CrossoverMethod.SINGLE_CROSSOVER_POINT),
 
-    # MagicSquareTestCase(population_size=100, square_size=3, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
-    # MagicSquareTestCase(population_size=100, square_size=10, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.UNIFORM_CROSSOVER),
+    MagicSquareTestCase(population_size=100, square_size=3, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.SINGLE_CROSSOVER_POINT_PERCENTAGE),
+    MagicSquareTestCase(population_size=100, square_size=5, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.SINGLE_CROSSOVER_POINT_PERCENTAGE),
+    MagicSquareTestCase(population_size=100, square_size=10, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.SINGLE_CROSSOVER_POINT_PERCENTAGE),
+
+    MagicSquareTestCase(population_size=100, square_size=3, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.RANDOM_SEGMENT_CROSSOVER_PERCENTAGE),
+    MagicSquareTestCase(population_size=100, square_size=5, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.RANDOM_SEGMENT_CROSSOVER_PERCENTAGE),
+    MagicSquareTestCase(population_size=100, square_size=10, mutation_rate=0.8, elite_percent=0.2, crossover_method=CrossoverMethod.RANDOM_SEGMENT_CROSSOVER_PERCENTAGE),
+
+    MagicSquareTestCase(population_size=100, square_size=3, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.ORDER_CROSSOVER),
+    MagicSquareTestCase(population_size=100, square_size=5, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.ORDER_CROSSOVER),
+    MagicSquareTestCase(population_size=100, square_size=10, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.ORDER_CROSSOVER),
+
+    MagicSquareTestCase(population_size=100, square_size=3, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.VOTING_RECOMBINATION),
+    MagicSquareTestCase(population_size=100, square_size=5, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.VOTING_RECOMBINATION),
+    MagicSquareTestCase(population_size=100, square_size=10, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.VOTING_RECOMBINATION),
+
+    MagicSquareTestCase(population_size=100, square_size=3, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.ALTERNATING_POSITION_CROSSOVER),
+    MagicSquareTestCase(population_size=100, square_size=5, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.ALTERNATING_POSITION_CROSSOVER),
+    MagicSquareTestCase(population_size=100, square_size=10, mutation_rate=0.5, elite_percent=0.8, crossover_method=CrossoverMethod.ALTERNATING_POSITION_CROSSOVER),
 ]
 
 # If we need to generate the test cases, we append the above list with the permutations of the various constant parameters at the top of the file.
